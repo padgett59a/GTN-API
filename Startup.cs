@@ -32,11 +32,24 @@ namespace GTN_API
             services.AddDbContext<GtnDbContext>(options => {
                 options.UseSqlServer(Configuration.GetConnectionString("GtnConnection"));
             });
+
+            //CORS
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsApi",
+                    builder => builder.WithOrigins("http://localhost:4200")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod());
+            });
+
+            services.AddScoped<ILanguageRepository, LanguageRepository>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -46,6 +59,9 @@ namespace GTN_API
 
             app.UseRouting();
 
+            app.UseCors("GtnPolicy");
+
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
